@@ -2,6 +2,7 @@
 
 // --------------------------------------------------------------
 // Jordi Bataller i Mascarell
+// Víctor Morant 2025-09-18
 // --------------------------------------------------------------
 
 #ifndef PUBLICADOR_H_INCLUIDO
@@ -24,7 +25,7 @@ private:
   // ............................................................
 public:
   EmisoraBLE laEmisora {
-	"ELPROFE", //  nombre emisora
+	"Victor Morant", //  nombre emisora
 	  0x004c, // fabricanteID (Apple)
 	  4 // txPower
 	  };
