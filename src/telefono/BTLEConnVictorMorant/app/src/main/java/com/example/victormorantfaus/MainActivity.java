@@ -123,6 +123,14 @@ public class MainActivity extends AppCompatActivity {
             Log.d(ETIQUETA_LOG, " txPower  = " + Integer.toHexString(tib.getTxPower()) + " ( " + tib.getTxPower() + " )");
             Log.d(ETIQUETA_LOG, " ****************************************************");
 
+            // Enviar a Firebase
+            FirebaseHelper firebaseHelper = new FirebaseHelper();
+            firebaseHelper.enviarMedicion(
+                    Utilidades.bytesToHexString(tib.getUUID()),
+                    Utilidades.bytesToInt(tib.getMajor()),
+                    Utilidades.bytesToInt(tib.getMinor()),
+                    resultado.getRssi()
+            );
         }else {
             Log.d(ETIQUETA_LOG, "UUID invalido");
         }
