@@ -123,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(ETIQUETA_LOG, " txPower  = " + Integer.toHexString(tib.getTxPower()) + " ( " + tib.getTxPower() + " )");
             Log.d(ETIQUETA_LOG, " ****************************************************");
 
+            // TODO: añadir un condicional buscando nombre o algún otro parametro y verificar que se envian a firebase
             // Enviar a Firebase
             FirebaseHelper firebaseHelper = new FirebaseHelper();
             firebaseHelper.enviarMedicion(

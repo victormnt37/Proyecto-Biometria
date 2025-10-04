@@ -1,18 +1,26 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import { getDatabase, ref, query, orderByChild, limitToLast, onValue } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_AUTH_DOMAIN",
-  databaseURL: "TU_DATABASE_URL",
-  projectId: "TU_PROJECT_ID",
-  storageBucket: "TU_STORAGE_BUCKET",
-  messagingSenderId: "TU_MESSAGING_SENDER_ID",
-  appId: "TU_APP_ID"
+  apiKey: "AIzaSyARkCrhm8d9FU41sd5tDWyhQGb8oOa4hXs",
+  authDomain: "proyecto-biometria-12925.firebaseapp.com",
+  projectId: "proyecto-biometria-12925",
+  storageBucket: "proyecto-biometria-12925.firebasestorage.app",
+  messagingSenderId: "820888531568",
+  appId: "1:820888531568:web:b304c79f70ca5b7b4ffab5",
+  databaseURL: "https://proyecto-biometria-12925-default-rtdb.europe-west1.firebasedatabase.app"
 };
 
-firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-const db = firebase.database();
+const medicionesQuery = query(
+  ref(db, 'mediciones'),
+  orderByChild('timestamp'),
+  limitToLast(1)
+);
 
-db.ref('mediciones').orderByChild('timestamp').limitToLast(1).on('value', snapshot => {
+onValue(medicionesQuery, (snapshot) => {
   const data = snapshot.val();
   if (data) {
     const last = Object.values(data)[0];
