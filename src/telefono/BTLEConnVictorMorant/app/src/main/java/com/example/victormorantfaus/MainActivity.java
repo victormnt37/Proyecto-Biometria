@@ -12,12 +12,14 @@ import android.os.Bundle;
 import android.os.ParcelUuid;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 // ------------------------------------------------------------------
@@ -30,6 +32,10 @@ public class MainActivity extends AppCompatActivity {
     private static final String ETIQUETA_LOG = ">>>>";
 
     private static final int CODIGO_PETICION_PERMISOS = 11223344;
+
+    private EditText ultimaMedicion = null;
+
+    private static final String nombreDispositivo = "Victor Morant";
 
     // --------------------------------------------------------------
     // --------------------------------------------------------------
@@ -123,15 +129,29 @@ public class MainActivity extends AppCompatActivity {
             Log.d(ETIQUETA_LOG, " txPower  = " + Integer.toHexString(tib.getTxPower()) + " ( " + tib.getTxPower() + " )");
             Log.d(ETIQUETA_LOG, " ****************************************************");
 
-            // TODO: añadir un condicional buscando nombre o algún otro parametro y verificar que se envian a firebase
-            // Enviar a Firebase
-            FirebaseHelper firebaseHelper = new FirebaseHelper();
-            firebaseHelper.enviarMedicion(
-                    Utilidades.bytesToHexString(tib.getUUID()),
-                    Utilidades.bytesToInt(tib.getMajor()),
-                    Utilidades.bytesToInt(tib.getMinor()),
-                    resultado.getRssi()
-            );
+            int major = Utilidades.bytesToInt(tib.getMajor());
+            int minor = Utilidades.bytesToInt(tib.getMinor());
+
+            try {
+                if (Objects.equals(bluetoothDevice.getName(), nombreDispositivo)) {
+                    // Actualiza el EditText si major o minor tienen contenido
+                    if (major != 0 || minor != 0) {
+                        String texto = "Major: " + major + " | Minor: " + minor;
+                        runOnUiThread(() -> ultimaMedicion.setText(texto));
+                    }
+
+                    // Enviar a Firebase
+                    FirebaseHelper firebaseHelper = new FirebaseHelper();
+                    firebaseHelper.enviarMedicion(
+                            Utilidades.bytesToHexString(tib.getUUID()),
+                            Utilidades.bytesToInt(tib.getMajor()),
+                            Utilidades.bytesToInt(tib.getMinor()),
+                            resultado.getRssi()
+                    );
+                }
+            } catch (SecurityException e) {
+                Log.e(ETIQUETA_LOG, "No tienes permisos para inicializar el Bluetooth", e);
+            }
         }else {
             Log.d(ETIQUETA_LOG, "UUID invalido");
         }
@@ -281,6 +301,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ultimaMedicion = findViewById(R.id.ultimaMedicion);
 
         Log.d(ETIQUETA_LOG, " onCreate(): empieza ");
 
