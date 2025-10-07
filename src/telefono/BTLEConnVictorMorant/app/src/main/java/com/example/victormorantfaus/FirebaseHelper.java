@@ -15,8 +15,8 @@ public class FirebaseHelper {
         databaseReference = FirebaseDatabase.getInstance().getReference(DATOS_PATH);
     }
 
-    public void enviarMedicion(String uuid, int major, int minor, int rssi) {
-        Medicion medicion = new Medicion(uuid, major, minor, rssi, System.currentTimeMillis());
+    public void enviarMedicion(String uuid, String tipo, int contador, int valor, int rssi) {
+        Medicion medicion = new Medicion(uuid, tipo, contador, valor, rssi, System.currentTimeMillis());
         databaseReference.push().setValue(medicion)
             .addOnSuccessListener(aVoid ->
                     Log.d(">>>>", "Dato enviado correctamente: " + medicion)
@@ -28,17 +28,19 @@ public class FirebaseHelper {
 
     public static class Medicion {
         public String uuid;
-        public int major;
-        public int minor;
+        public String tipo;
+        public int contador;
+        public int valor;
         public int rssi;
         public long timestamp;
 
         public Medicion() {}
 
-        public Medicion(String uuid, int major, int minor, int rssi, long timestamp) {
+        public Medicion(String uuid, String tipo, int contador, int valor, int rssi, long timestamp) {
             this.uuid = uuid;
-            this.major = major;
-            this.minor = minor;
+            this.tipo = tipo;
+            this.contador = contador;
+            this.valor = valor;
             this.rssi = rssi;
             this.timestamp = timestamp;
         }

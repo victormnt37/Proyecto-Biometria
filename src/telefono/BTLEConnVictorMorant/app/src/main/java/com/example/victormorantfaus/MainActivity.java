@@ -40,8 +40,10 @@ public class MainActivity extends AppCompatActivity {
     // --------------------------------------------------------------
     private BluetoothLeScanner elEscanner;
     private static final String uuidDispositivo = "EPSG-GTI-PROY-3A";
-
     private ScanCallback callbackDelEscaneo = null;
+
+    private final int idMedicionCO2 = 11;
+    private final int idMedicionTemperatura = 12;
 
     // --------------------------------------------------------------
     // --------------------------------------------------------------
@@ -133,31 +135,52 @@ public class MainActivity extends AppCompatActivity {
             int minor = Utilidades.bytesToInt(tib.getMinor());
 
             try {
-                // TODO: filtrar por UUID
-                if (Objects.equals(Utilidades.bytesToString(tib.getUUID()), uuidDispositivo)) {
-                    Log.d(ETIQUETA_LOG, " ************************** ES NUESTRO BEACON **************************" + Utilidades.bytesToString(tib.getUUID()));
-                    // Actualiza el EditText si major o minor tienen contenido
-                    if (major != 0 || minor != 0) {
-                        String texto = "Major: " + major + " | Minor: " + minor;
-                        runOnUiThread(() -> ultimaMedicion.setText(texto));
-
-                        if (ultimaMedicion.getText().toString().equals(texto)) {
-                            // Enviar a Firebase
-                            FirebaseHelper firebaseHelper = new FirebaseHelper();
-                            firebaseHelper.enviarMedicion(
-                                    Utilidades.bytesToHexString(tib.getUUID()),
-                                    Utilidades.bytesToInt(tib.getMajor()),
-                                    Utilidades.bytesToInt(tib.getMinor()),
-                                    resultado.getRssi()
-                            );
-                        }
-                    }
-                }
+                enviarInformacionBTLE(tib, major, minor, resultado);
             } catch (SecurityException e) {
                 Log.e(ETIQUETA_LOG, "No tienes permisos para inicializar el Bluetooth", e);
             }
         }else {
             Log.d(ETIQUETA_LOG, "UUID invalido");
+        }
+    }
+
+    private void enviarInformacionBTLE(TramaIBeacon tib, int major, int minor, ScanResult resultado) {
+        if (Objects.equals(Utilidades.bytesToString(tib.getUUID()), uuidDispositivo)) {
+            Log.d(ETIQUETA_LOG, " ************************** ES NUESTRO BEACON **************************" + Utilidades.bytesToString(tib.getUUID()));
+
+            // Descomponer el major
+            int id = (major >> 8) & 0xFF; // Bits altos → ID
+            int contador = major & 0xFF; // Bits bajos → contador
+
+            String tipoMedicion;
+            switch (id) {
+                case idMedicionCO2:
+                    tipoMedicion = "CO2";
+                    break;
+                case idMedicionTemperatura:
+                    tipoMedicion = "Temperatura";
+                    break;
+                default:
+                    tipoMedicion = "Desconocido";
+                    break;
+            }
+
+            // Actualiza el EditText si major o minor tienen contenido
+            if (major != 0 || minor != 0) {
+                String texto = "Tipo de medicion: " + tipoMedicion + " | Valor: " + minor;
+                runOnUiThread(() -> ultimaMedicion.setText(texto));
+
+                if (ultimaMedicion.getText().toString().equals(texto)) {
+                    FirebaseHelper firebaseHelper = new FirebaseHelper();
+                    firebaseHelper.enviarMedicion(
+                            Utilidades.bytesToString(tib.getUUID()),
+                            tipoMedicion,
+                            contador,
+                            minor,
+                            resultado.getRssi()
+                    );
+                }
+            }
         }
     }
 
