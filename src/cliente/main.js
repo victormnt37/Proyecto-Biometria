@@ -24,8 +24,11 @@ onValue(medicionesQuery, (snapshot) => {
   const data = snapshot.val();
   if (data) {
     const last = Object.values(data)[0];
+    // TODO: mostrar bien los datos
     document.getElementById('med').textContent = JSON.stringify(last);
   } else {
     document.getElementById('med').textContent = 'Sin datos';
   }
 });
+
+// TODO: hacer petición de los anteriores datos y mostrarlos en una tabla

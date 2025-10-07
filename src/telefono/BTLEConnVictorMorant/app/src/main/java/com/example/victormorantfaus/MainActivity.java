@@ -35,11 +35,11 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText ultimaMedicion = null;
 
-    private static final String nombreDispositivo = "Victor Morant";
 
     // --------------------------------------------------------------
     // --------------------------------------------------------------
     private BluetoothLeScanner elEscanner;
+    private static final String uuidDispositivo = "EPSG-GTI-PROY-3A";
 
     private ScanCallback callbackDelEscaneo = null;
 
@@ -133,21 +133,25 @@ public class MainActivity extends AppCompatActivity {
             int minor = Utilidades.bytesToInt(tib.getMinor());
 
             try {
-                if (Objects.equals(bluetoothDevice.getName(), nombreDispositivo)) {
+                // TODO: filtrar por UUID
+                if (Objects.equals(Utilidades.bytesToString(tib.getUUID()), uuidDispositivo)) {
+                    Log.d(ETIQUETA_LOG, " ************************** ES NUESTRO BEACON **************************" + Utilidades.bytesToString(tib.getUUID()));
                     // Actualiza el EditText si major o minor tienen contenido
                     if (major != 0 || minor != 0) {
                         String texto = "Major: " + major + " | Minor: " + minor;
                         runOnUiThread(() -> ultimaMedicion.setText(texto));
-                    }
 
-                    // Enviar a Firebase
-                    FirebaseHelper firebaseHelper = new FirebaseHelper();
-                    firebaseHelper.enviarMedicion(
-                            Utilidades.bytesToHexString(tib.getUUID()),
-                            Utilidades.bytesToInt(tib.getMajor()),
-                            Utilidades.bytesToInt(tib.getMinor()),
-                            resultado.getRssi()
-                    );
+                        if (ultimaMedicion.getText().toString().equals(texto)) {
+                            // Enviar a Firebase
+                            FirebaseHelper firebaseHelper = new FirebaseHelper();
+                            firebaseHelper.enviarMedicion(
+                                    Utilidades.bytesToHexString(tib.getUUID()),
+                                    Utilidades.bytesToInt(tib.getMajor()),
+                                    Utilidades.bytesToInt(tib.getMinor()),
+                                    resultado.getRssi()
+                            );
+                        }
+                    }
                 }
             } catch (SecurityException e) {
                 Log.e(ETIQUETA_LOG, "No tienes permisos para inicializar el Bluetooth", e);
