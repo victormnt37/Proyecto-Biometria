@@ -45,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     private final int idMedicionCO2 = 11;
     private final int idMedicionTemperatura = 12;
 
+    private int ultimoContadorEnviado = -1;
+
     // --------------------------------------------------------------
     // --------------------------------------------------------------
     private void buscarTodosLosDispositivosBTLE() {
@@ -111,8 +113,6 @@ public class MainActivity extends AppCompatActivity {
 
         TramaIBeacon tib = new TramaIBeacon(bytes);
 
-        // TODO: añadir logica para envio de datos a back
-
         if (tib.getUUID() != null) {
             Log.d(ETIQUETA_LOG, " ----------------------------------------------------");
             Log.d(ETIQUETA_LOG, " prefijo  = " + Utilidades.bytesToHexString(tib.getPrefijo()));
@@ -165,12 +165,12 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
 
-            // Actualiza el EditText si major o minor tienen contenido
             if (major != 0 || minor != 0) {
                 String texto = "Tipo de medicion: " + tipoMedicion + " | Valor: " + minor;
                 runOnUiThread(() -> ultimaMedicion.setText(texto));
 
-                if (ultimaMedicion.getText().toString().equals(texto)) {
+                // Solo enviar si el contador es diferente al último enviado
+                if (contador != ultimoContadorEnviado) {
                     FirebaseHelper firebaseHelper = new FirebaseHelper();
                     firebaseHelper.enviarMedicion(
                             Utilidades.bytesToString(tib.getUUID()),
@@ -179,6 +179,7 @@ public class MainActivity extends AppCompatActivity {
                             minor,
                             resultado.getRssi()
                     );
+                    ultimoContadorEnviado = contador; // Actualiza el último contador enviado
                 }
             }
         }
