@@ -79,5 +79,59 @@ onValue(medicionesQuery, (snapshot) => {
   }
 });
 
-// TODO: crear tabla con datos de las útimas mediciones
-// idealmente se pueden filtrar usando los ths
+// Pedimos las 10 últimas mediciones ordenadas por timestamp
+const ultimasMedicionesQuery = query(
+  ref(db, "mediciones"),
+  orderByChild("timestamp"),
+  limitToLast(10)
+);
+
+onValue(ultimasMedicionesQuery, (snapshot) => {
+  const data = snapshot.val();
+  const tablaElem = document.getElementById("tabla-mediciones");
+  if (data) {
+    // Convertimos el objeto en array y lo ordenamos por fecha descendente
+    const mediciones = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
+
+    let tablaHtml = `
+      <table>
+        <thead>
+          <tr>
+            <th>Contador</th>
+            <th>Tipo</th>
+            <th>Valor</th>
+            <th>RSSI</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    mediciones.forEach(med => {
+      tablaHtml += `
+        <tr>
+          <td>${med.contador}</td>
+          <td>${tipoMedicionStr(med.tipo)}</td>
+          <td>${
+            med.tipo === "11"
+              ? `${med.valor} ºC`
+              : med.tipo === "12"
+              ? `${med.valor} ppm`
+              : med.valor
+          }</td>
+          <td>${med.rssi} dBm</td>
+          <td>${formateaFecha(med.timestamp)}</td>
+        </tr>
+      `;
+    });
+
+    tablaHtml += `
+        </tbody>
+      </table>
+    `;
+
+    tablaElem.innerHTML = tablaHtml;
+  } else {
+    tablaElem.textContent = "Sin datos";
+  }
+});
