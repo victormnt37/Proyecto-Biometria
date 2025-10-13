@@ -1,3 +1,3 @@
-# Proyecto Biometría y Medio Ambiente
+# Proyecto Aplicaciones de Biometría y Medio Ambiente
 
-Proyecto 1er cuatrimestre 3º GTI
+Proyecto 1er cuatrimestre 3º GTI - Víctor Morant Faus
