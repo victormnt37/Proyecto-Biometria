@@ -1,0 +1,17 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "main": "firebaseService.test.js",
+  "type": "module",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "Víctor Morant Faus",
+  "license": "ISC",
+  "description": "Tests para el módulo de servicios de consultas a Firebase Realtime Database, Proyecto Biometría",
+  "devDependencies": {
+    "firebase-mock": "^2.3.2",
+    "jest": "^30.2.0"
+  }
+}

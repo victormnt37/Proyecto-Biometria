@@ -30,3 +30,7 @@ lint/generated/
 
 # fbase
 google-services.json
+
+# npm
+node_modules/
+npm-debug.log
