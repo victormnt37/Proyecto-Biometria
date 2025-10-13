@@ -1,13 +1,18 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-import {
-  getDatabase,
-  ref,
-  query,
-  orderByChild,
-  limitToLast,
-  onValue,
-} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+/**
+ * Cliente web para el proyecto de Biometría y Medio Ambiente.
+ * Inicializa la conexión con Firebase y muestra la última medición y el historial de mediciones en la interfaz.
+ * 
+ * @author Víctor Morant Faus
+ * @date 2025
+ */
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import { getDatabase } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+import { getUltimaMedicion, getHistorialMediciones } from "./firebaseService.js";
+
+/**
+ * Configuración de Firebase para la aplicación web.
+ */
 const firebaseConfig = {
   apiKey: "AIzaSyARkCrhm8d9FU41sd5tDWyhQGb8oOa4hXs",
   authDomain: "proyecto-biometria-12925.firebaseapp.com",
@@ -19,80 +24,52 @@ const firebaseConfig = {
     "https://proyecto-biometria-12925-default-rtdb.europe-west1.firebasedatabase.app",
 };
 
+// Inicializa la app de Firebase y la base de datos
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-const medicionesQuery = query(
-  ref(db, "mediciones"),
-  orderByChild("timestamp"),
-  limitToLast(1)
-);
-
-function tipoMedicionStr(tipo) {
-  if (tipo === "11") return "Temperatura";
-  if (tipo === "12") return "CO2";
-  return "Desconocido";
-}
-
+/**
+ * Formatea un timestamp en milisegundos a una cadena de fecha legible.
+ * @param {number} timestamp - Fecha en milisegundos desde Epoch.
+ * @returns {string} Fecha y hora en formato local.
+ */
 function formateaFecha(timestamp) {
   const fecha = new Date(timestamp);
   return fecha.toLocaleString();
 }
 
-onValue(medicionesQuery, (snapshot) => {
-  const data = snapshot.val();
+/**
+ * Consulta y muestra la última medición en la interfaz.
+ */
+getUltimaMedicion(db, (last) => {
   const medElem = document.getElementById("med");
-  if (data) {
-    const last = Object.values(data)[0];
+  if (last) {
     medElem.innerHTML = `
-    <table>
-      <tr>
-        <th>Contador</th>
-        <td>${last.contador}</td>
-      </tr>
-      <tr>
-        <th>Tipo</th>
-        <td>${tipoMedicionStr(last.tipo)}</td>
-      </tr>
-      <tr>
-        <th>Valor</th>
-        <td>${
+      <table>
+        <tr><th>Contador</th><td>${last.contador}</td></tr>
+        <tr><th>Tipo</th><td>${last.tipo}</td></tr>
+        <tr><th>Valor</th><td>${
           last.tipo === "11"
             ? `${last.valor} ºC`
             : last.tipo === "12"
             ? `${last.valor} ppm`
             : last.valor
-        }</td>
-      </tr>
-      <tr>
-        <th>RSSI</th>
-        <td>${last.rssi} dBm</td>
-      </tr>
-      <tr>
-        <th>Fecha</th>
-        <td>${formateaFecha(last.timestamp)}</td>
-      </tr>
-    </table>
+        }</td></tr>
+        <tr><th>RSSI</th><td>${last.rssi} dBm</td></tr>
+        <tr><th>Fecha</th><td>${formateaFecha(last.timestamp)}</td></tr>
+      </table>
     `;
   } else {
     medElem.textContent = "Sin datos";
   }
 });
 
-// Pedimos las 10 últimas mediciones ordenadas por timestamp
-const ultimasMedicionesQuery = query(
-  ref(db, "mediciones"),
-  orderByChild("timestamp"),
-  limitToLast(10)
-);
-
-onValue(ultimasMedicionesQuery, (snapshot) => {
-  const data = snapshot.val();
+/**
+ * Consulta y muestra el historial de las últimas 10 mediciones en la interfaz.
+ */
+getHistorialMediciones(db, 10, (mediciones) => {
   const tablaElem = document.getElementById("tabla-mediciones");
-  if (data) {
-    // Convertimos el objeto en array y lo ordenamos por fecha descendente
-    const mediciones = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
-
+  if (mediciones.length > 0) {
     let tablaHtml = `
       <table>
         <thead>
@@ -106,12 +83,11 @@ onValue(ultimasMedicionesQuery, (snapshot) => {
         </thead>
         <tbody>
     `;
-
     mediciones.forEach(med => {
       tablaHtml += `
         <tr>
           <td>${med.contador}</td>
-          <td>${tipoMedicionStr(med.tipo)}</td>
+          <td>${med.tipo}</td>
           <td>${
             med.tipo === "11"
               ? `${med.valor} ºC`
@@ -124,12 +100,7 @@ onValue(ultimasMedicionesQuery, (snapshot) => {
         </tr>
       `;
     });
-
-    tablaHtml += `
-        </tbody>
-      </table>
-    `;
-
+    tablaHtml += `</tbody></table>`;
     tablaElem.innerHTML = tablaHtml;
   } else {
     tablaElem.textContent = "Sin datos";

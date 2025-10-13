@@ -1,28 +1,43 @@
 <!DOCTYPE html>
+<!--
+    index.html
+    Cliente web para el proyecto de Biometría y Medio Ambiente.
+    Estructura principal de la interfaz: cabecera, última medición, historial y pie de página.
+    Incluye los estilos y el script principal.
+    @author Víctor Morant Faus
+    @date 2025
+-->
 <html lang="en">
     <head>
+        <!-- Metadatos y configuración de la página -->
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Proyecto Biometria</title>
+        <!-- Hoja de estilos principal -->
         <link rel="stylesheet" href="styles.css">
-        <script src="main.js" type="module"></script>
+        <!-- Script principal de la aplicación (módulo JS) -->
+        <script src="js/main.js" type="module"></script>
     </head>
     <body>
+        <!-- Cabecera de la aplicación -->
         <header>
             <h1>Proyecto Aplicaciones de Biometría y Medio Ambiente</h1>
             <h2>Cliente Web</h2>
         </header>
+        <!-- Contenido principal: última medición y historial -->
         <div id="mainContent">
             <main>
                 <h2>Ultima medición:</h2>
-                <div id="med">
-                </div>
+                <!-- Contenedor para mostrar la última medición -->
+                <div id="med"></div>
             </main>
             <aside>
                 <h2>Historial de mediciones:</h2>
+                <!-- Contenedor para mostrar la tabla de historial de mediciones -->
                 <div id="tabla-mediciones"></div>
             </aside>
         </div>
+        <!-- Pie de página -->
         <footer>
             <h2>Víctor Morant Faus - 2025</h2>
         </footer>
